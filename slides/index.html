@@ -1,0 +1,1142 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Effective platform building with Kubernetes. Is K8S new Linux?</title>
+
+		<!-- bootstrap -->
+		<link rel="stylesheet" href="ext/bootstrap-4.1.3/css/bootstrap.css">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/white.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!-- remove annoying shadow around images -->
+		<style>
+			.reveal section img {
+				background-color:white;
+				border:0;
+				box-shadow: 0 0 0 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h3>Effective platform building<br /> with Kubernetes.</h3>
+
+					<!-- img src="img/logo_kubernetes.svg" class="center-block" style="background-color:white;border:0;width: 30%"/ -->
+					<!-- h3>Is K8S new Linux?</h3 -->
+					<br />
+
+					<h6><small>W<span style="text-transform: lowercase;">ojciech</span> B<span style="text-transform: lowercase;">arczyński</span> - <a href="https://smacc.io" style="color:#fe702f">SMACC.<span style="text-transform: lowercase;">io</span></a> | <a href="https://hypatos.io" style="color:#fe702f">H<span style="text-transform: lowercase;">ypatos.ai</span></a><br />
+						16 N<span style="text-transform: lowercase;">ovember</span> 2018</small>
+					<!-- small>Wojciech Barczynski - SMACC.io | Hypatos.ai<br />November 2018</small -->
+				</section>
+
+				<!--
+				Simple semantic
+				Kubernetes Effective = Learn-as-you-go experience
+				Share my story
+				-->
+
+				<!-- section>
+					<h3>Today</h3>
+					<ul>
+						<li></li>
+						<li></li>
+						<li>Spent 3.5y with Openstack, 1000+ nodes, 21 data centers</li>
+	<li>I do not like INFRA :D</li>
+					</ul>
+				</section -->
+
+				<section>
+					<h3>Wojciech Barczyński</h3>
+					<div class="container">
+						<div class="row">
+							<div class='col-md-8'>
+								<ul>
+									<li>Lead Software Developer<br />&amp; System Engineer</li>
+									<li>K8S:<br />2.5 years @ startups</li>
+									<li>Before:<br />Openstack, SAP R&amp;D</li>
+									<li>+ Visiting lecturer and Trainer</li>
+								</ul>
+							</div>
+							<div class='col-md-3'>
+								<img style="padding:12px" src="img/logo_smacc_hypatos.png" />
+							</div>
+						</div>
+						<div class="row d-flex flex-row justify-content-center align-items-center">
+							<p><small>G<span style="text-transform: lowercase;">ithub: </span><a href="https://github.com/wojciech12" style="color:#fe702f"><span style="text-transform: lowercase;">wojciech12</span></a>
+								| Linked: <a href="https://www.linkedin.com/in/wojciechbarczynski/" style="color:#fe702f">IN</a>
+								| HP<span style="text-transform: lowercase;">: </span><a href="http://wbarczynski.pl" style="color:#fe702f"><span style="text-transform: lowercase;">wbarczynski.pl</span></a>
+								| T: <a href="https://twitter.com/wbarczynski" style="color:#fe702f"><span style="text-transform: lowercase;">@wbarczynski</span></a></small></p>
+						</div>
+					</div>
+				</section>
+
+					<!-- li>I do not like INFRA</li-->
+
+				<!-- section>
+					<h3>Background</h3>
+					<ul>
+						<li>ML FinTech ➡ micro-services and k8s</li>
+						<li>Before:<br />1 z 10 Indonesian mobile e-commerce (Rocket Internet)</li>
+						<li>Spent 3.5y with Openstack, 1000+ nodes, 21 data centers</li>
+						<li>I do not like INFRA :D</li>
+					</ul>
+				</section -->
+
+				<!--
+					Tell me a story
+				-->
+				<section>
+					<h3>Story</h3><!-- Dude, why should I listen to you? -->
+						<ul>
+							<li>Lyke - [12.2016 - 07.2017]</li>
+							<li>SMACC - [10.2017 - present]</li>
+						</ul>
+						<p>My Role: Leading the change, implementing it</p>
+				</section>
+
+				<!--
+					Intro
+				-->
+				<section>
+					<h4>Why we like kubernetes?</h4>
+					<img src="img/logo_kubernetes.svg" class="center-block" style="background-color:white;border:0;width: 30%"/>
+				</section>
+
+				<section>
+					<h3>For me</h3>
+					<ul>
+						<li>Data center as a black box</li>
+						<li>Lingua Franca</li>
+						<li>Batteries included</li>
+						<li>Learn-as-you-go experience</li>
+						<li>Independent from IaaS provider</li>
+					</ul>
+					<p><small>Notice: not a silver bullet</small></p>
+				</section>
+
+				<!-- Data center as a black box</li> -->
+				<section>
+					<h3>Black Box</h3>
+					<p>Deploy!</p>
+					<img src="img/k8s_intro.svg" style="width:80%"/>
+					<p><small><code>make docker_push; kubectl create -f app-srv-dpl.yaml</code></small></p>
+				</section>
+
+				<section>
+					<h3>Black Box</h3>
+					<p>Scale up! Scale down!</p>
+					<img src="img/k8s_intro_scale_up.svg" style="width:80%"/>
+					<p><small><code>kubectl --replicas=3 -f app-srv-dpl.yaml</code></small></p>
+				</section>
+
+				<!-- section>
+					<h3>Black Box</h3>
+					<p>Scale up! Scale down!</p>
+					<img src="img/k8s_intro_scale_down.svg" style="width:80%"/>
+					<p><small><code>kubectl --replicas=1 -f app-srv-dpl.yaml</code></small></p>
+				</section -->
+
+				<section data-markdown>
+					<script type="text/template">
+### Black Box
+<p>Resistance and Migrations</p>
+
+<img src="img/k8s_ha_resistance_1.svg" style="width:80%">
+<p><small><code></code></small></p>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### Black Box
+<p>Resistance and Migrations</p>
+
+<img src="img/k8s_ha_resistance_3.svg" style="width:80%">
+<p><small>and much more: load balancing</small></p>
+					</script>
+				</section>
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### Black Box
+<p>Load Balancing</p>
+<img src="img/k8s_loadbalancing.svg" style="height:90%"/>
+					</script>
+				</section -->
+
+				<section>
+					<h3>Lingua Franca</h3>
+					<img src="img/backup_slides/k8s_service_and_pods.svg" style="width:90%" />
+				</section>
+
+				<section>
+					<h3>Lingua Franca</h3>
+					<img src="img/backup_slides/k8s_deployment_and_pods.svg" style="width:90%"/>
+				</section>
+
+				<!-- section>
+					<h3>Lingua Franca</h3>
+					<p>to talk about microservices:</p>
+					<img src="img/rubber_duck_sea.jpg" style="width:85%"/>
+				</section -->
+
+				<section data-markdown>
+					<script type="text/template">
+### Ligua Franca
+
+<table>
+	<thread>
+		<tr>
+			<th>Pattern</th><th>Target App Service</th>
+		</tr>
+	</thread>
+	<tbody>
+		<tr>
+			<td>api.smacc.io/v1/users</td><td>users-v1</td>
+		</tr>
+		<tr>
+			<td>api.smacc.io/v2/users</td><td>users-v2</td>
+		</tr>
+		<tr>
+			<td>smacc.io</td><td>web</td>
+		</tr>
+	</tbody>
+</table>
+					</script>
+				</section>
+
+				<section>
+					<h3>Lingua Franca</h3>
+					<p>Ingress Controller:</p>
+					<img src="img/traefik_architecture.svg" width="80%"/>
+					<small>Drop-in: traefik, nginx, haproxy, envoy...</small>
+				</section>
+
+				<!--
+				## Why Kubernetes?
+
+				- Batteries for your (12factor) apps
+
+				WHY, HOW, WHAT
+
+				- Give you complete control over your application with simple *yaml* config files
+				- Use *labels* to auto-wire your app to monitoring, logging, and alarming
+				- Let you to, almost forget, about the infrastructure
+				-->
+
+
+				<!-- section>
+				<h4>Ostatnio</h4>
+				<ul>
+					<li>Platfroma integracyjne - patrz SAP</li>
+				</ul>
+				</section -->
+
+				<!-- section data-markdown>
+					<script type="text/template">
+						<h5>Data center as a Black box</h5>
+					</script>
+				</section -->
+				<!-- img src="img/kubernetes_logo.svg" style="background-color:white;width:60%" / -->
+
+				<!--
+				<li>Batteries included</li>
+				-->
+				<section data-markdown>
+					<script type="text/template">
+### Batteries
+
+Service Discovery:
+
+- service injected to DNS: <br /><code>curl http://users/list</code>
+- labels:<br /><code>name=value</code>
+- annotations: <br /><code>prometheus.io/scrape: "true"</code>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### Service Discovery
+
+- Loosely couple components
+- Auto-wiring with logging and monitoring
+- Integration
+					</script>
+				</section>
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### Drop-in
+
+- traefik / Ingress / Envoy
+- prometheus
+- audit checks
+- ...
+					</script>
+				</section -->
+
+				<section data-markdown>
+					<script type="text/template">
+### L<span style="text-transform: lowercase;">earn-as-you-go experience</span>
+
+Monitoring? Ingress?<br />
+
+1. Drop-in: traefik, nginx, ...
+2. oooo ruuuuns!
+3. Make a hell of mistakes
+4. Get the right one or It is OK for now
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### L<span style="text-transform: lowercase;">earn-as-you-go experience</span>
+
+Where to start?<br />
+➡ With service and deployment
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### L<span style="text-transform: lowercase;">earn-as-you-go experience</span>
+
+memcached in k8s?<br />
+➡ statefulset
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### L<span style="text-transform: lowercase;">earn-as-you-go experience</span>
+
+<p>My pod takes all memory<br />
+➡ resource &amp; limits</p>
+
+<p>My ML-based app has slow start.</p>
+<p>Users noticed downtime.</p>
+					</script>
+				</section>
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### L<span style="text-transform: lowercase;">earn-as-you-go experience</span>
+
+My ML-based app has slow start<br />
+➡ probes
+					</script>
+				</section -->
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### L<span style="text-transform: lowercase;">earn-as-you-go experience</span>
+
+Zero-downtime deployment<br />
+➡ improve code + probes
+					</script>
+				</section -->
+
+				<section data-markdown>
+					<script type="text/template">
+### Long live git!
+
+- All yaml in your service git
+- Integration with e.g.:
+  - monitoring, alarming
+  - ingress-controller
+- Forget about infrastructure... almost
+
+<p><small>DevOps Culture Dream!</small></p>
+					</script>
+				</section>
+
+				<!--
+				Tell me a story
+				-->
+
+				<!--
+				LYKE
+				-->
+				<section>
+					<img src="img/lyke/lyke_logo.png" />
+				</section>
+
+				<section>
+					<h2>Lyke</h2>
+					<div class="container">
+						<div class="row">
+							<div class='col-md-6'>
+								<ul>
+									<li>E-commerce Indonesia</li>
+									<li>Mobile-only</li>
+									<li>50k+ users</li>
+									<li>2M downloads</li>
+									<li>Top 10 Fashion Apps<br />Google Play Store</li>
+								</ul>
+							</div>
+							<div class='col-md-5'>
+								<img src="img/lyke/lyke_user.jpg" />
+								<small>http://www.news.getlyke.com/single-post/2016/12/02/Introducing-the-New-Beautiful-LYKE</small>
+							</div>
+						</div>
+						<!--
+							https://e27.co/lyke-named-indonesian-pop-star-agnez-mo-co-founder-chief-creative-officer-20171026/
+						-->
+						<div class="row d-flex flex-row justify-content-center align-items-center">
+							<p><small>Now JollyChic Indonesia</small></p>
+						</div>
+					</div>
+				</section>
+
+				<section>
+					<h2>Good parts</h2>
+					<div class="container">
+						<div class="row">
+							<div class='col-md-6'>
+								<ul>
+									<li>Fast Growth</li>
+									<li>A/B Testing</li>
+									<li>Data-driven</li>
+									<li>Product Manager,<br />UI Designer,<br />Mobile Dev,<br />and tester - one body</li>
+								</ul>
+							</div>
+							<div class='col-md-5'>
+								<img src="img/lyke/lyke_image_search.png" />
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+#### Challenges
+
+- 50+ VMs in Amazon, 1 VM - 1 App
+- 65% Idle machine $$$
+- Puppet with manual deployment process
+- Fear, Forgotten components
+- Performance issues
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+#### Approach
+
+1. Simplify Infrastructure
+2. Change the Development Practices<br />
+(12factor + kubernetes)
+3. Change the Work Organization
+
+<p><small>see: Conway's law</small></p>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+#### Simplify
+
+1. Kubernetes with Google Kubernetes Engine
+2. Terraform for all new
+3. Database-as-a-service
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+#### Simplify
+
+1. Prometheus, AlertManager, and Grafana
+2. Elasticsearch-Fluentd-Kibana
+3. Google Identity-Aware-Proxy<br />to protect all dev dashboards
+4. 3rd party SaaS: statuscake and opsgenie
+
+<p><small>One person efford</small></p>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+#### Continuous Deployment
+
+- branch-based:
+  - master
+  - staging
+  - production
+- repo independent
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+#### TravisCI
+
+1. Tests
+2. Build docker
+3. Deploy to Google Container Registry
+4. Deploy to k8s only new docker
+5. no config/secrets applied
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+#### Git Repo
+
+<pre><code>|- tools
+|    |- kube-service.yaml
+|    \- kube-deployment.yaml
+|
+|- Dockerfile
+|- VERSION
+\- Makefile</code></pre>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+#### M<span style="text-transform: lowercase;">akefile</span>
+
+<pre><code>SERVICE_NAME=v-connector
+GCP_DOCKER_REGISTRY=eu.gcr.io
+test: test_short test_integration
+
+run_local:
+
+docker_build: docker_push
+
+kube_create_config:
+
+kube_apply:
+
+kube_deploy:</code></pre>
+
+<p><small>Copy&Paste from the project to project</small></p>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 1. Clean up
+
+- Single script for repo - Makefile [1]
+- Resurrect the README
+
+<small>[1] With zsh or bash auto-completion plug-in in your terminal.</small>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 2. Get back all the knowledge
+
+Extract from:
+
+- Puppet, ... ➡ Dockerfile
+- Running Instances ➡ Dockerfile, README.rst
+- Nagios, ... ➡ README.rst + <code>checks/</code>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 3. Introduce run_local
+
+- <code>make run_local</code>
+- A nice section on how to run in README.rst
+- with <code>docker-compose</code>
+
+<p>The most crucial point.</p>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 4. Get to kubernetes
+
+- <code>make kube_create_config</code>
+- <code>make kube_apply</code>
+- Generate the yaml files if your envs differ
+
+<p><small>secrets from gopass (password manager)</small></p>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 5. Continuous Deployment
+
+Travis:
+
+- the same Makefile as dev use
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 6. Keep it running
+
+Bridge the new with old:
+
+- Use External Services in Kubernetes
+- Expose k8s in the Legacy [1]
+
+<p><small>[1] hard coded IP:PORT, considered: K8S events to Consul</small></p>
+					</script>
+				</section>
+
+				<section>
+					<h8>Bridge the new with old</h8>
+					<img src="img/lyke/lyke_new_with_old.svg" width="80%">
+					<p><small>Monitor legacy with new stack</small></p>
+				</section>
+
+				<section>
+					<h8>Architecture During Migration</h8>
+					<img src="img/lyke/lyke_immediately_architecture.svg" width="80%"><!-- br /-->
+					<!-- small>No dev?</small -->
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 7. Introduce smoke-test
+
+<pre><code class="bash">TARGET_URL=127.0.0 make smoke_test
+TARGET_URL=api.example.com/users make smoke_test</code></pre>
+</script>
+<!-- small>Cut pinging tester or ... to check whether component really is running</small-->
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 8. Service self-aware
+
+Add to old services:
+
+1. <i>metrics/</i>
+2. <i>health/</i>
+3. <i>info/</li>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 9. Move to micro-services
+
+Offload Legacy:
+
+- Keep the lights on
+- New functionality to micro-services
+					</script>
+				</section>
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### 10. Get performance testing
+
+- <i>wrk</i> for evaluating performance
+- load test the real system
+					</script>
+				</section -->
+
+				<section data-markdown>
+					<script type="text/template">
+### What worked
+
+1. Copy&Paste Makefile and k8s yaml
+2. Separate deployments a good transition strategy
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### What did not work
+
+1. Too many PoC, cut to 2 weeks max
+2. Doing it with too small steps
+3. Push back to k8s yaml [*]
+4. Alert rules too hard to write
+
+<p><small>[*] With coaching, I thought, it is OK</small>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### Do different
+
+1. Move data day one
+2. Make devs know it is a transition stage
+3. Teach earlier about resources
+4. EFK could wait
+5. All-hands for a paid-XXX% weekend for migration
+					</script>
+				</section>
+
+<!--
+SMACC
+-->
+<section>
+	<img src="img/logo_smacc_hypatos.png" width="50%" />
+</section>
+
+<section data-background="img/smacc_pitch/smacc_pitch_1.png" data-background-repeat="" data-background-size="100%">
+</section>
+
+<!-- section data-background="img/smacc_pitch/smacc_pitch_2.png" data-background-repeat="" data-background-size="100%">
+</section -->
+
+<section data-background="img/smacc_pitch/smacc_pitch_3.png" data-background-repeat="" data-background-size="100%">
+</section>
+
+				<!-- section>
+					<h3>Background</h3>
+					<ul>
+				<li>Experience with AWS and GCP</li>
+				<li>I do not like INFRA :D</li>
+			</ul>
+		</section -->
+
+<!-- section>
+<h2>Kubernetes @ Azure</h2>
+</section -->
+
+<!-- section>
+	<h2>Options</h2>
+<ul>
+	<li>AKS - managed</li>
+	<li>ACS - installation wizard</li>
+	<li>Your own installation with Installer</li>
+</ul>
+</section -->
+
+<!-- section>
+	<h2>AKS</h2>
+<ul>
+	<li>GKE for Google</li>
+	<li>EKS or Fargate for Amazon</li>
+</ul>
+</section -->
+
+				<section>
+					<h3>Story</h3>
+					<ol>
+						<li>Legacy on AWS and AWS ECS :/ </li>
+						<li>Self-hosted K8S on ProfitBricks (PB)</li>
+						<li>ooo... K8S can use Azure Active Directory :D</li>
+					</ol>
+				</section>
+
+				<section>
+					<h3>Story</h3>
+					<ol start="4">
+						<li>Get to Microsoft ScaleUp</li>
+						<li>Welcome Azure!</li>
+						<li>Luckily. AKS</li>
+						<li>Easy migration from PB to AKS</li>
+					</ol>
+				</section>
+
+				<section>
+					<h3>Azure Kubernetes Service</h3>
+					<ul>
+						<li>Independent from IaaS</li>
+						<!-- li>Consolidation of our micro-services</li -->
+						<li>Plug and play</li>
+						<li>Integration with GPU</li>
+						<li>Our OnPrem = Our OnCloud</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Simplicity</h3>
+					<ul>
+						<li>az aks CLI for setting k8s - README.rst</li>
+						<li>Terraform for everything else</li>
+						<li>Secrets: 1Password and gopass.pw</li>
+					</ul>
+					<p><small>Terraform also sets our AWS</small></p>
+				</section>
+
+				<section>
+					<h3>Difference &#x2620;</h3>
+					<ul>
+						<li>Two teams in Berlin and Warsaw</li>
+						<li>Me in Warsaw</li>
+					</ul>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### New experience
+
+Devs do not:
+- like TravisCI, Makefiles, Yamls
+- feel it is too much hasle
+
+<p>Transition from PB to AKS was painful</p>
+					</script>
+				</section>
+
+<section data-markdown>
+<script type="text/template">
+### Solution
+
+- make everything ligther
+- c&p without modifications
+- hide the k8s, remove magic
+- deploy on *tag*
+
+<p><small>Similar to the <a href="https://www.youtube.com/watch?v=kOa_llowQ1c">Kelsey Hightower approach</a></small></p>
+</script>
+</section>
+
+<section>
+<h3>R<span style="text-transform: lowercase;">epo .travis.yml</span></h3>
+
+<pre><code class="yaml">language: go
+go:
+- '1.16'
+services:
+  - docker
+install:
+  - curl -sL https://${GITHUB_TOKEN}@raw.githubusercontent.com/smaccio/smacc-ci/master/prerequisites.sh | bash
+  - if [ -f "tools/travis/install.sh" ]; then bash tools/travis/install.sh; fi;
+script:
+  - dep ensure
+  - make lint
+  - make test
+  - if [ -z "${TRAVIS_TAG}" ]; then make snapshot; fi;
+deploy:
+  - provider: script # deploy to docker repo
+    script: make release
+    skip_cleanup: true
+    on:
+      tags: true
+      all_branches: true
+      condition: "$TRAVIS_TAG =~ ^v.*"
+  - provider: script # to staging cluster
+    script: curl -sL https://${GITHUB_TOKEN}@raw.githubusercontent.com/smaccio/smacc-ci/master/deploy.sh | bash
+    skip_cleanup: true
+    on:
+      tags: true
+      all_branches: true
+      condition: "$TRAVIS_TAG =~ ^v.*"
+  - provider: script # enforce to dev cluster
+    script: curl -sL https://${GITHUB_TOKEN}@raw.githubusercontent.com/smaccio/smacc-ci/master/deploy_snapshot.sh | bash
+    skip_cleanup: true
+    on:
+      all_branches: true
+      condition: $TRAVIS_BRANCH =~ ^master|develop$ # squad decide
+notifications:
+  slack:
+    rooms:
+    - smaccio:PLAIN_TEXT_HASH</pre></code>
+</section>
+
+<section>
+<h3>M<span style="text-transform: lowercase;">akefile</span></h3>
+
+<pre><code>|- tools
+|    |- Makefile
+|    |- kube-service.yaml
+|    \- kube-deployment.yaml
+|
+|- Dockerfile
+\- Makefile</code></pre>
+<p><small>Makefile only tasks for dev</small></p>
+</section>
+
+<section>
+<h3>Continuous Deployment</h3>
+<ul>
+	<li>Github</li>
+	<li>TravisCI</li>
+	<li>hub.docker.com</li>
+	<li>AKS</li>
+</ul>
+</section>
+
+<section>
+<h3>Continuous Deployment</h3>
+<ol>
+	<li><code>git tag</code> and <code>push</code></li>
+	<li>smacc-platform.git</li>
+	<li>Deploy to staging</li>
+	<li>PR to production</li>
+</ol>
+</section>
+
+<!-- section>
+<h3>Continuous Deployment</h3>
+<ol start="2">
+	<li>Generate deploy, ingress, and svc k8s files</li>
+	<li>Commit to smacc-platform.git on <b>staging</b> branch</li>
+	<li>Deploy to staging environment</li>
+</ol>
+</section -->
+
+<!-- section>
+<h3>Continuous Deployment</h3>
+<ol start="6">
+	<li>Create PR in smacc-platform.git<br />for <b>production</b> branch</li>
+	<li>On merge, deploy to production</li>
+</ol>
+</section -->
+
+<!-- section>
+<h3>Continuous Deployment</h3>
+<p>smacc-platform.git</p>
+<ul>
+	<li>3 independent branches:<br />dev, staging, and master</li>
+	<li>Scripts to deploy k8s to AKS</li>
+	<li>Target for other scripts</li>
+</ul>
+</section -->
+
+<!-- section>
+	<h2>Tech</h2>
+	<ul>
+		<li>Golang dla mikroserwisów</li>
+		<li>Python dla wszystkiego Machine Learning</li>
+		<li>JS i Emberjs dla webui</li>
+		<li>OpenAPI</li>
+		<li>ML Pipeline - evaluate kubeflow i patchyderm</li>
+	</ul>
+</section -->
+
+<section>
+	<h2>Kubernetes</h2>
+	<ul>
+		<li>Pure, generated, kubernetes config</li>
+		<li>2x kubernetes operators</li>
+	</ul>
+</section>
+
+<!-- section>
+	<h2>Environments</h2>
+					<table>
+						<thread>
+							<tr>
+								<th>Env</th><th>Number of Nodes</th>
+							</tr>
+						</thread>
+						<tbody>
+							<tr>
+								<td>Prod</td><td>7</td>
+							</tr>
+							<tr>
+								<td>Staging</td><td>5</td>
+							</tr>
+							<tr>
+								<td>Dev</td><td>4</td>
+							</tr>
+							<tr>
+								<td>Tools</td><td>1</td>
+							</tr>
+						</tbody>
+					</table>
+<small>We also have short-living ML clusters</small>
+</section -->
+
+<!-- section>
+<h3>Databases</h3>
+<p>Inside the k8s</p>
+<ul>
+	<li>Mysql</li>
+	<li>Postgres</li>
+	<li>Mongodb</li>
+</ul>
+</section -->
+
+<section>
+<h2>What worked</h2>
+<ul>
+	<li>Hiding k8s</li>
+	<li>Understandable CD process</li>
+</ul>
+</section>
+
+<section>
+<h2>Would do different</h2>
+<ul>
+	<li>More sensitive to feedback</li>
+</ul>
+</section>
+
+<section>
+<h2>Next</h2>
+<ul>
+	<li>Acceptance tests listen on k8s events</li>
+	<!-- li>Scale our ML trainings on the top of k8s</li -->
+	<li>Deployment tool based on <a href="https://github.com/microdevs/missy">missy</a></li>
+	<li>Keeping an eye on Istio</li>
+	<!-- li>On radar: AWS Service Operator</li -->
+</ul>
+</section>
+
+<section>
+<h3>K8S <span style="text-transform: lowercase;"> - </span> L<span style="text-transform: lowercase;">inux</span> / A<span style="text-transform: lowercase;">pp server</span>?</h3>
+<ul>
+	<li>Out-of-box integration</li>
+	<li>Lingua Franca - AWS Service Operator</li>
+	<li>Learn as you go</li>
+	<li>onPremise = onCloud = OnLocal (e.g., <a href="https://github.com/sokoow/kube-desktop">kube-desktop</a>)</li>
+</ul>
+</section>
+
+<section>
+<h3>K8S <span style="text-transform: lowercase;"> - </span> L<span style="text-transform: lowercase;">inux</span> / A<span style="text-transform: lowercase;">pp server</span>?</h3>
+<ul>
+<li>Do not terrorize your devs with K8S</li>
+<li>No free lunch... app must be smarter</li>
+<li>On VM vs K8S vs Lambdas?</li>
+</ul>
+</section>
+
+<!-- section>
+<h3>How to start</h3>
+<ul>
+	<li>minikube</li>
+	<li>GKE</li>
+</ul>
+</section -->
+
+<section data-background="img/smacc_header_IT_source.jpg" data-background-repeat="" data-background-size="100%" data-background-position="bottom"
+			style="position: relative; top:0">
+				<h4>Thank you. Questions?</h4>
+				<p>ps. We are hiring.</p><!-- Developers, Frontend, System Engineers -->
+			</section>
+
+			<section data-background="img/smacc_header_IT_source.jpg" data-background-repeat="" data-background-size="100%" data-background-position="bottom"
+						style="position: relative; top:0">
+							<h4><span style="text-transform: lowercase;">github.com/wojciech12/talk_cloudnative_and_kubernetes_waw</span></h4>
+							<!-- p>ps. We are hiring.</p --><!-- Developers, Frontend, System Engineers -->
+						</section>
+
+				<!--
+					BACKUP SLIDES
+				-->
+			<section data-background="img/smacc_header_IT_source.jpg" data-background-repeat="" data-background-size="100%" data-background-position="bottom" style="position: relative; top:0">
+				<h2>Backup Slides</h2>
+			</section>
+
+			<!-- section>
+			<h4>Hiring</h4>
+			<ul>
+				<li>Senior Polyglot Software Engineers</li>
+				<li>Experienced System Engineers</li>
+				<li>Front-end Engineers</li>
+				<li>1 Data-Driven Product Manager</li>
+			</ul>
+			<p><small>Apply: hello-warsaw@smacc.io,<br />Questions? wojciech.barczynski@smacc.io, <a href="https://www.facebook.com/wojciech.barczynski.161">FB</a> or <a href="https://www.linkedin.com/in/wojciechbarczynski/">LI</a></small></p>
+			<p><small>We will teach you Go if needed. No k8s or ML, we will take care of that.</small></p>
+		</section -->
+
+			<!-- section>
+				<h1>0.1 ➡ 1.0</h1>
+			</section -->
+
+
+				<section data-markdown>
+					<script type="text/template">
+					### Change the work organization
+
+					- From Scrum
+					- To Kanban
+					- from Kanban to Squads
+
+					For the next talk
+					</script>
+				</section>
+
+				<section>
+					<h1>Kubernetes Concepts</h1>
+				</section>
+
+
+		<section>
+	<h3>Pods</h3>
+	<div class="container">
+		<div class="row">
+			<div class='col-md-6'>
+				<ul>
+					<li>See each other on localhost</li>
+					<li>Live and die together</li>
+					<li>Can expose multiple ports</li>
+				</ul>
+			</div>
+			<div class='col-md-5'>
+				<img src="img/backup_slides/k8s_pod.svg" style="width:90%" />
+			</div>
+		</div>
+	</div>
+</section>
+
+			<section>
+				<h3>Side-cars</h3>
+				<img src="img/backup_slides/k8s_pod_2.svg" style="width:90%" />
+			</section>
+
+			<section>
+				<h4>Basic Concepts</h4>
+				<p><table>
+					<thread>
+						<tr>
+							<th>Name</th><th>Purpose</th><th></th>
+						</tr>
+					</thread>
+					<tbody>
+						<tr>
+							<td>Service</td><td>Interface</td><td>Entry point (Service Name)</td>
+						</tr>
+						<tr>
+							<td>Deployment</td><td>Factory</td><td>How many pods, which pods</td>
+						</tr>
+						<tr>
+							<td>Pod</td><td>Implementation</td><td>1+ docker running</td>
+						</tr>
+					</tbody>
+				</table></p>
+			</section>
+
+		</div>
+	</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
